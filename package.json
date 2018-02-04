@@ -2,8 +2,10 @@
   "name": "space-invaders",
   "version": "0.1.0",
   "scripts": {
-    "build": "bsb -make-world",
-    "start": "bsb -make-world -w",
+    "start": "npm-run-all -p watch-bsb watch-webpack",
+    "watch-bsb": "bsb -make-world -w",
+    "watch-webpack": "webpack -w --config webpack.config.js",
+    "build": "bsb -make-world && webpack --config webpack.config.js",
     "clean": "bsb -clean-world"
   },
   "keywords": [
@@ -12,7 +14,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "bs-platform": "^2.1.0"
+    "bs-platform": "^2.1.0",
+    "npm-run-all": "^4.1.2",
+    "webpack": "^3.10.0"
   },
   "dependencies": {
     "bs-webapi": "^0.8.2"

@@ -13,8 +13,6 @@ if (canvas == null) {
   screen = canvas.getContext("2d");
 }
 
-console.log(screen);
-
 var canvas$1 = (canvas == null) ? /* None */0 : [canvas];
 
 exports.canvas = canvas$1;

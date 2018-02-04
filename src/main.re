@@ -9,4 +9,4 @@ let screen =
   | None => raise(Not_found);
   };
 
-  Js.log(screen)
+  /* Js.log(screen) */

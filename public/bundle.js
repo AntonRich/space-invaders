@@ -78,18 +78,19 @@ var screen = canvas.getContext("2d");
 
 function getScreenSize(canvas) {
   return /* record */[
-          /* x */canvas.width,
-          /* y */canvas.height
+          /* width */canvas.width,
+          /* height */canvas.height
         ];
 }
 
-console.log(canvas);
-
-console.log(getScreenSize(canvas));
+function update(body) {
+  return body;
+}
 
 exports.canvas        = canvas;
 exports.screen        = screen;
 exports.getScreenSize = getScreenSize;
+exports.update        = update;
 /* canvas Not a pure module */
 
 

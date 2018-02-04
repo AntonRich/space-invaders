@@ -19,6 +19,5 @@
     "webpack": "^3.10.0"
   },
   "dependencies": {
-    "bs-webapi": "^0.8.2"
   }
 }

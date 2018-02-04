@@ -10,7 +10,6 @@
   },
   "suffix": ".bs.js",
   "bs-dependencies": [
-      "bs-webapi"
   ],
   "namespace": true,
   "refmt": 3

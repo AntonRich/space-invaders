@@ -5,7 +5,7 @@
     "start": "npm-run-all -p watch-bsb watch-webpack",
     "watch-bsb": "bsb -make-world -w",
     "watch-webpack": "webpack -w --config webpack.config.js",
-    "build": "bsb -make-world && webpack --config webpack.config.js",
+    "build": "bsb -make-world && webpack -p --config webpack.config.js",
     "clean": "bsb -clean-world"
   },
   "keywords": [

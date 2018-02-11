@@ -2,9 +2,9 @@ type element;
 
 type context;
 
-[@bs.get] external elementWidth : context => int = "width";
+[@bs.get] external elementWidth : element => int = "width";
 
-[@bs.get] external elementHeight : context => int = "height";
+[@bs.get] external elementHeight : element => int = "height";
 
 [@bs.val]
 external getElementById : string => element = "document.getElementById";
@@ -19,7 +19,7 @@ external fillRect : (context, int, int, int, int) => unit = "fillRect";
 external clearRect : (context, int, int, int, int) => unit = "clearRect";
 
 [@bs.val]
-external requestCancellableAnimationFrame : (unit => unit) => int =
+external requestCancellableAnimationFrame : (int => int) => int =
   "requestAnimationFrame";
 
 [@bs.val] external cancelAnimationFrame : int => unit = "";
@@ -113,24 +113,46 @@ let drawBody = (screen, body) =>
     )
   };
 
-let draw = (game, screen) => {
-  let screenSize = getScreenSize(screen);
+let draw = (game, canvas) => {
+  let screen = getContext2d(canvas);
+  let screenSize = getScreenSize(canvas);
   clearRect(screen, 0, 0, screenSize.width, screenSize.height);
   List.map(drawBody(screen), game.bodies);
 };
 
-/* let initialState = {
-     bodies: [{
-                size: {
-                  width: 12,
-                  height: 6
-                },
-                center: {
-                  x: 30,
-                  y: 30
-                }
-              }],
-     playerAlive: true,
-     invadersLeft: true
-   }; */
-let gameLoop = () => {};
+let initialState = {
+  bodies: [
+    Player({
+      size: {
+        width: 12,
+        height: 6
+      },
+      center: {
+        x: 30,
+        y: 30
+      }
+    }),
+    Invader({
+      size: {
+        width: 30,
+        height: 10
+      },
+      center: {
+        x: 10,
+        y: 90
+      },
+      patrolX: 3,
+      speedX: 3.
+    })
+  ],
+  playerAlive: true,
+  invadersLeft: true
+};
+
+let rec gameLoop = (state, frameId) => {
+  let nextState = tick(state);
+  draw(nextState, canvas);
+  requestCancellableAnimationFrame(gameLoop(nextState));
+};
+
+gameLoop(initialState, 0);

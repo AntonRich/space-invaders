@@ -1444,13 +1444,36 @@ function getScreenSize(context) {
         ];
 }
 
-function update(body) {
-  return body;
+function update(keyboard, body) {
+  switch (body.tag | 0) {
+    case 0 : 
+        var match = body[0];
+        var center = match[/* center */1];
+        var match$1 = keyboard[/* left */0];
+        var match$2 = keyboard[/* right */1];
+        return /* Player */Block.__(0, [/* record */[
+                    /* size */match[/* size */0],
+                    /* center : record */[
+                      /* x */(center[/* x */0] + (
+                          match$1 !== 0 ? -2 : 0
+                        ) | 0) + (
+                        match$2 !== 0 ? 2 : 0
+                      ) | 0,
+                      /* y */center[/* y */1]
+                    ]
+                  ]]);
+    case 1 : 
+    case 2 : 
+        return body;
+    
+  }
 }
 
-function tick(game) {
+function tick(game, keyboard) {
   return /* record */[
-          /* bodies */List.map(update, game[/* bodies */0]),
+          /* bodies */List.map((function (param) {
+                  return update(keyboard, param);
+                }), game[/* bodies */0]),
           /* playerAlive : true */1,
           /* invadersLeft : true */1
         ];
@@ -1498,8 +1521,8 @@ var initialState = /* record */[
             /* height */6
           ],
           /* center : record */[
-            /* x */30,
-            /* y */30
+            /* x */120,
+            /* y */300
           ]
         ]]),
     /* :: */[
@@ -1522,15 +1545,79 @@ var initialState = /* record */[
   /* invadersLeft : true */1
 ];
 
-function gameLoop(state, _) {
-  var nextState = tick(state);
+var gameKeyboard = /* record */[
+  /* left : false */0,
+  /* right : false */0,
+  /* space : false */0
+];
+
+document.addEventListener("keydown", (function (e) {
+        var keyCode = e.keyCode;
+        var switcher = keyCode - 32 | 0;
+        if (switcher > 7 || switcher < 0) {
+          console.log("");
+          return /* () */0;
+        } else {
+          switch (switcher) {
+            case 0 : 
+                gameKeyboard[/* space */2] = /* true */1;
+                return /* () */0;
+            case 5 : 
+                gameKeyboard[/* left */0] = /* true */1;
+                return /* () */0;
+            case 1 : 
+            case 2 : 
+            case 3 : 
+            case 4 : 
+            case 6 : 
+                console.log("");
+                return /* () */0;
+            case 7 : 
+                gameKeyboard[/* right */1] = /* true */1;
+                return /* () */0;
+            
+          }
+        }
+      }));
+
+document.addEventListener("keyup", (function (e) {
+        var keyCode = e.keyCode;
+        var switcher = keyCode - 32 | 0;
+        if (switcher > 7 || switcher < 0) {
+          console.log("");
+          return /* () */0;
+        } else {
+          switch (switcher) {
+            case 0 : 
+                gameKeyboard[/* space */2] = /* false */0;
+                return /* () */0;
+            case 5 : 
+                gameKeyboard[/* left */0] = /* false */0;
+                return /* () */0;
+            case 1 : 
+            case 2 : 
+            case 3 : 
+            case 4 : 
+            case 6 : 
+                console.log("");
+                return /* () */0;
+            case 7 : 
+                gameKeyboard[/* right */1] = /* false */0;
+                return /* () */0;
+            
+          }
+        }
+      }));
+
+function gameLoop(state, keyboard, _) {
+  var nextState = tick(state, keyboard);
   draw(nextState, canvas);
   return requestAnimationFrame((function (param) {
-                return gameLoop(nextState, param);
+                return gameLoop(nextState, keyboard, param);
               }));
 }
 
-gameLoop(initialState, 0);
+gameLoop(initialState, gameKeyboard, 0);
 
 exports.canvas        = canvas;
 exports.screen        = screen;
@@ -1540,6 +1627,7 @@ exports.tick          = tick;
 exports.drawBody      = drawBody;
 exports.draw          = draw;
 exports.initialState  = initialState;
+exports.gameKeyboard  = gameKeyboard;
 exports.gameLoop      = gameLoop;
 /* canvas Not a pure module */
 

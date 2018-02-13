@@ -83,30 +83,61 @@ type keyboard = {
   mutable space: bool
 };
 
-type gameState = {
-  bodies: list(body),
-  playerAlive: bool,
-  invadersLeft: bool
+type gameBoard = {
+  player,
+  invaders: list(invader),
+  bullets: list(bullet)
 };
 
-let update = (keyboard, body) =>
-  switch body {
-  | Player({center, size}) =>
-    Player({
-      size,
+let updatePlayer = (keyboard, {size, center}: player) => {
+  size,
+  center: {
+    x: center.x + (keyboard.left ? (-2) : 0) + (keyboard.right ? 2 : 0),
+    y: center.y
+  }
+};
+
+let updateInvaders = invaders => invaders;
+
+let updateBullet = ({size, velocity, center}: bullet) : bullet => {
+  size,
+  velocity,
+  center: {
+    x: center.x,
+    y: center.y + velocity.y
+  }
+};
+
+let updateBullets = (keyboard, bullets, origin) => {
+  let updatedBullets = List.map(updateBullet, bullets);
+  if (keyboard.space) {
+    let bullet = {
+      size: {
+        width: 3,
+        height: 3
+      },
+      velocity: {
+        x: 0,
+        y: (-6)
+      },
       center: {
-        x: center.x + (keyboard.left ? (-2) : 0) + (keyboard.right ? 2 : 0),
-        y: center.y
+        x: origin.x,
+        y: origin.y
       }
-    })
-  | Invader(_) => body
-  | Bullet(_) => body
+    };
+    List.append([bullet], updatedBullets);
+  } else {
+    updatedBullets;
   };
+};
 
 let tick = (game, keyboard) => {
-  bodies: List.map(update(keyboard), game.bodies),
-  playerAlive: true,
-  invadersLeft: true
+  let player = game.player;
+  {
+    player: updatePlayer(keyboard, player),
+    invaders: updateInvaders(game.invaders),
+    bullets: updateBullets(keyboard, game.bullets, player.center)
+  };
 };
 
 let drawBody = (screen, body) =>
@@ -141,22 +172,23 @@ let draw = (game, canvas) => {
   let screen = getContext2d(canvas);
   let screenSize = getScreenSize(canvas);
   clearRect(screen, 0, 0, screenSize.width, screenSize.height);
-  List.map(drawBody(screen), game.bodies);
+  drawBody(screen, Player(game.player));
+  List.map(drawBody(screen), List.map(b => Bullet(b), game.bullets));
 };
 
 let initialState = {
-  bodies: [
-    Player({
-      size: {
-        width: 12,
-        height: 6
-      },
-      center: {
-        x: 120,
-        y: 300
-      }
-    }),
-    Invader({
+  player: {
+    size: {
+      width: 12,
+      height: 6
+    },
+    center: {
+      x: 120,
+      y: 300
+    }
+  },
+  invaders: [
+    {
       size: {
         width: 30,
         height: 10
@@ -167,10 +199,9 @@ let initialState = {
       },
       patrolX: 3,
       speedX: 3.
-    })
+    }
   ],
-  playerAlive: true,
-  invadersLeft: true
+  bullets: []
 };
 
 let gameKeyboard = {left: false, right: false, space: false};

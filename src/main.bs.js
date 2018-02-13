@@ -15,38 +15,75 @@ function getScreenSize(context) {
         ];
 }
 
-function update(keyboard, body) {
-  switch (body.tag | 0) {
-    case 0 : 
-        var match = body[0];
-        var center = match[/* center */1];
-        var match$1 = keyboard[/* left */0];
-        var match$2 = keyboard[/* right */1];
-        return /* Player */Block.__(0, [/* record */[
-                    /* size */match[/* size */0],
-                    /* center : record */[
-                      /* x */(center[/* x */0] + (
-                          match$1 !== 0 ? -2 : 0
-                        ) | 0) + (
-                        match$2 !== 0 ? 2 : 0
-                      ) | 0,
-                      /* y */center[/* y */1]
-                    ]
-                  ]]);
-    case 1 : 
-    case 2 : 
-        return body;
-    
+function updatePlayer(keyboard, param) {
+  var center = param[/* center */1];
+  var match = keyboard[/* left */0];
+  var match$1 = keyboard[/* right */1];
+  return /* record */[
+          /* size */param[/* size */0],
+          /* center : record */[
+            /* x */(center[/* x */0] + (
+                match !== 0 ? -2 : 0
+              ) | 0) + (
+              match$1 !== 0 ? 2 : 0
+            ) | 0,
+            /* y */center[/* y */1]
+          ]
+        ];
+}
+
+function updateInvaders(invaders) {
+  return invaders;
+}
+
+function updateBullet(param) {
+  var velocity = param[/* velocity */2];
+  var center = param[/* center */1];
+  return /* record */[
+          /* size */param[/* size */0],
+          /* center : record */[
+            /* x */center[/* x */0],
+            /* y */center[/* y */1] + velocity[/* y */1] | 0
+          ],
+          /* velocity */velocity
+        ];
+}
+
+function updateBullets(keyboard, bullets, origin) {
+  var updatedBullets = List.map(updateBullet, bullets);
+  if (keyboard[/* space */2]) {
+    var bullet_000 = /* size : record */[
+      /* width */3,
+      /* height */3
+    ];
+    var bullet_001 = /* center : record */[
+      /* x */origin[/* x */0],
+      /* y */origin[/* y */1]
+    ];
+    var bullet_002 = /* velocity : record */[
+      /* x */0,
+      /* y */-6
+    ];
+    var bullet = /* record */[
+      bullet_000,
+      bullet_001,
+      bullet_002
+    ];
+    return List.append(/* :: */[
+                bullet,
+                /* [] */0
+              ], updatedBullets);
+  } else {
+    return updatedBullets;
   }
 }
 
 function tick(game, keyboard) {
+  var player = game[/* player */0];
   return /* record */[
-          /* bodies */List.map((function (param) {
-                  return update(keyboard, param);
-                }), game[/* bodies */0]),
-          /* playerAlive : true */1,
-          /* invadersLeft : true */1
+          /* player */updatePlayer(keyboard, player),
+          /* invaders */game[/* invaders */1],
+          /* bullets */updateBullets(keyboard, game[/* bullets */2], player[/* center */1])
         ];
 }
 
@@ -79,41 +116,41 @@ function draw(game, canvas) {
   var screen = canvas.getContext("2d");
   var screenSize = getScreenSize(canvas);
   screen.clearRect(0, 0, screenSize[/* width */0], screenSize[/* height */1]);
+  drawBody(screen, /* Player */Block.__(0, [game[/* player */0]]));
   return List.map((function (param) {
                 return drawBody(screen, param);
-              }), game[/* bodies */0]);
+              }), List.map((function (b) {
+                    return /* Bullet */Block.__(2, [b]);
+                  }), game[/* bullets */2]));
 }
 
 var initialState = /* record */[
-  /* bodies : :: */[
-    /* Player */Block.__(0, [/* record */[
-          /* size : record */[
-            /* width */12,
-            /* height */6
-          ],
-          /* center : record */[
-            /* x */120,
-            /* y */300
-          ]
-        ]]),
-    /* :: */[
-      /* Invader */Block.__(1, [/* record */[
-            /* size : record */[
-              /* width */30,
-              /* height */10
-            ],
-            /* center : record */[
-              /* x */10,
-              /* y */90
-            ],
-            /* patrolX */3,
-            /* speedX */3
-          ]]),
-      /* [] */0
+  /* player : record */[
+    /* size : record */[
+      /* width */12,
+      /* height */6
+    ],
+    /* center : record */[
+      /* x */120,
+      /* y */300
     ]
   ],
-  /* playerAlive : true */1,
-  /* invadersLeft : true */1
+  /* invaders : :: */[
+    /* record */[
+      /* size : record */[
+        /* width */30,
+        /* height */10
+      ],
+      /* center : record */[
+        /* x */10,
+        /* y */90
+      ],
+      /* patrolX */3,
+      /* speedX */3
+    ],
+    /* [] */0
+  ],
+  /* bullets : [] */0
 ];
 
 var gameKeyboard = /* record */[
@@ -190,14 +227,17 @@ function gameLoop(state, keyboard, _) {
 
 gameLoop(initialState, gameKeyboard, 0);
 
-exports.canvas        = canvas;
-exports.screen        = screen;
-exports.getScreenSize = getScreenSize;
-exports.update        = update;
-exports.tick          = tick;
-exports.drawBody      = drawBody;
-exports.draw          = draw;
-exports.initialState  = initialState;
-exports.gameKeyboard  = gameKeyboard;
-exports.gameLoop      = gameLoop;
+exports.canvas         = canvas;
+exports.screen         = screen;
+exports.getScreenSize  = getScreenSize;
+exports.updatePlayer   = updatePlayer;
+exports.updateInvaders = updateInvaders;
+exports.updateBullet   = updateBullet;
+exports.updateBullets  = updateBullets;
+exports.tick           = tick;
+exports.drawBody       = drawBody;
+exports.draw           = draw;
+exports.initialState   = initialState;
+exports.gameKeyboard   = gameKeyboard;
+exports.gameLoop       = gameLoop;
 /* canvas Not a pure module */

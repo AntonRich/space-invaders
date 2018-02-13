@@ -174,13 +174,14 @@ let draw = (game, canvas) => {
   clearRect(screen, 0, 0, screenSize.width, screenSize.height);
   drawBody(screen, Player(game.player));
   List.map(drawBody(screen), List.map(b => Bullet(b), game.bullets));
+  List.map(drawBody(screen), List.map(b => Invader(b), game.invaders));
 };
 
 let initialState = {
   player: {
     size: {
-      width: 12,
-      height: 6
+      width: 18,
+      height: 8
     },
     center: {
       x: 120,
@@ -215,7 +216,7 @@ addEventListener(
     | 37 => gameKeyboard.left = true
     | 39 => gameKeyboard.right = true
     | 32 => gameKeyboard.space = true
-    | _ => Js.log("")
+    | _ => ignore()
     };
   }
 );
@@ -229,7 +230,7 @@ addEventListener(
     | 37 => gameKeyboard.left = false
     | 39 => gameKeyboard.right = false
     | 32 => gameKeyboard.space = false
-    | _ => Js.log("")
+    | _ => ignore()
     };
   }
 );

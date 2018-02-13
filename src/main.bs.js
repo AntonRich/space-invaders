@@ -117,18 +117,23 @@ function draw(game, canvas) {
   var screenSize = getScreenSize(canvas);
   screen.clearRect(0, 0, screenSize[/* width */0], screenSize[/* height */1]);
   drawBody(screen, /* Player */Block.__(0, [game[/* player */0]]));
+  List.map((function (param) {
+          return drawBody(screen, param);
+        }), List.map((function (b) {
+              return /* Bullet */Block.__(2, [b]);
+            }), game[/* bullets */2]));
   return List.map((function (param) {
                 return drawBody(screen, param);
               }), List.map((function (b) {
-                    return /* Bullet */Block.__(2, [b]);
-                  }), game[/* bullets */2]));
+                    return /* Invader */Block.__(1, [b]);
+                  }), game[/* invaders */1]));
 }
 
 var initialState = /* record */[
   /* player : record */[
     /* size : record */[
-      /* width */12,
-      /* height */6
+      /* width */18,
+      /* height */8
     ],
     /* center : record */[
       /* x */120,
@@ -163,7 +168,6 @@ document.addEventListener("keydown", (function (e) {
         var keyCode = e.keyCode;
         var switcher = keyCode - 32 | 0;
         if (switcher > 7 || switcher < 0) {
-          console.log("");
           return /* () */0;
         } else {
           switch (switcher) {
@@ -178,7 +182,6 @@ document.addEventListener("keydown", (function (e) {
             case 3 : 
             case 4 : 
             case 6 : 
-                console.log("");
                 return /* () */0;
             case 7 : 
                 gameKeyboard[/* right */1] = /* true */1;
@@ -192,7 +195,6 @@ document.addEventListener("keyup", (function (e) {
         var keyCode = e.keyCode;
         var switcher = keyCode - 32 | 0;
         if (switcher > 7 || switcher < 0) {
-          console.log("");
           return /* () */0;
         } else {
           switch (switcher) {
@@ -207,7 +209,6 @@ document.addEventListener("keyup", (function (e) {
             case 3 : 
             case 4 : 
             case 6 : 
-                console.log("");
                 return /* () */0;
             case 7 : 
                 gameKeyboard[/* right */1] = /* false */0;

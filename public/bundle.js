@@ -1498,8 +1498,23 @@ function isPlayer(body) {
   }
 }
 
+function isInvader(body) {
+  switch (body.tag | 0) {
+    case 1 : 
+        return /* true */1;
+    case 0 : 
+    case 2 : 
+        return /* false */0;
+    
+  }
+}
+
 function findPlayer(bodies) {
   return List.find(isPlayer, bodies);
+}
+
+function findInvaders(bodies) {
+  return List.find_all(isInvader)(bodies);
 }
 
 function getPosition(body) {
@@ -1524,14 +1539,41 @@ function notCollidingWithAny(bodies, body) {
                       }))(bodies)) === 0);
 }
 
+function invaderShot(invader) {
+  var invaderPosition = getPosition(invader);
+  var invaderSize = getSize(invader);
+  if (Math.random() > 0.995) {
+    return /* :: */[
+            /* Bullet */Block.__(2, [
+                /* record */[
+                  /* width */3,
+                  /* height */3
+                ],
+                /* record */[
+                  /* x */invaderPosition[/* x */0],
+                  /* y */invaderPosition[/* y */1] + (invaderSize[/* height */1] / 2 | 0) | 0
+                ],
+                /* record */[
+                  /* x */Math.random() - 0.5 | 0,
+                  /* y */2
+                ]
+              ]),
+            /* [] */0
+          ];
+  } else {
+    return /* [] */0;
+  }
+}
+
 function tick(game, keyboard) {
   var player = List.find(isPlayer, game[/* bodies */0]);
   var playerPosition = getPosition(player);
+  var invaders = List.find_all(isInvader)(game[/* bodies */0]);
   var partial_arg = game[/* bodies */0];
   var survivingBodies = List.filter((function (param) {
             return notCollidingWithAny(partial_arg, param);
           }))(game[/* bodies */0]);
-  var newBullets = keyboard[/* space */2] ? /* :: */[
+  var playerBullets = keyboard[/* space */2] ? /* :: */[
       /* Bullet */Block.__(2, [
           /* record */[
             /* width */3,
@@ -1545,6 +1587,8 @@ function tick(game, keyboard) {
         ]),
       /* [] */0
     ] : /* [] */0;
+  var invaderBullets = List.flatten(List.map(invaderShot, invaders));
+  var newBullets = List.append(playerBullets, invaderBullets);
   var allBodies = List.append(survivingBodies, newBullets);
   return /* record */[/* bodies */List.map((function (param) {
                   return updateBody(keyboard, param);
@@ -1674,11 +1718,14 @@ exports.screen              = screen;
 exports.getScreenSize       = getScreenSize;
 exports.updateBody          = updateBody;
 exports.isPlayer            = isPlayer;
+exports.isInvader           = isInvader;
 exports.findPlayer          = findPlayer;
+exports.findInvaders        = findInvaders;
 exports.getPosition         = getPosition;
 exports.getSize             = getSize;
 exports.colliding           = colliding;
 exports.notCollidingWithAny = notCollidingWithAny;
+exports.invaderShot         = invaderShot;
 exports.tick                = tick;
 exports.drawToScreen        = drawToScreen;
 exports.drawBody            = drawBody;

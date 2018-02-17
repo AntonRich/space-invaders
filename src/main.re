@@ -102,7 +102,15 @@ let isPlayer = body =>
   | _ => false
   };
 
+let isInvader = body =>
+  switch body {
+  | Invader(_, _, _) => true
+  | _ => false
+  };
+
 let findPlayer = bodies => List.find(isPlayer, bodies);
+
+let findInvaders = bodies => List.find_all(isInvader, bodies);
 
 let getPosition = body =>
   switch body {
@@ -151,17 +159,36 @@ let colliding = (body1, body2) => {
 let notCollidingWithAny = (bodies, body) =>
   List.length(List.filter(b => colliding(b, body), bodies)) == 0;
 
+let invaderShot = invader => {
+  let invaderPosition = getPosition(invader);
+  let invaderSize = getSize(invader);
+  if (Js.Math.random() > 0.995) {
+    [
+      Bullet(
+        {width: 3, height: 3},
+        {x: invaderPosition.x, y: invaderPosition.y + invaderSize.height / 2},
+        {x: int_of_float(Js.Math.random() -. 0.5), y: 2}
+      )
+    ];
+  } else {
+    [];
+  };
+};
+
 let tick = (game, keyboard) => {
   let player = findPlayer(game.bodies);
   let playerPosition = getPosition(player);
+  let invaders = findInvaders(game.bodies);
   let survivingBodies =
     List.filter(notCollidingWithAny(game.bodies), game.bodies);
-  let newBullets =
+  let playerBullets =
     if (keyboard.space) {
       [Bullet({width: 3, height: 3}, playerPosition, {x: 0, y: (-6)})];
     } else {
       [];
     };
+  let invaderBullets = List.flatten(List.map(invaderShot, invaders));
+  let newBullets = List.append(playerBullets, invaderBullets);
   let allBodies = List.append(survivingBodies, newBullets);
   {bodies: List.map(updateBody(keyboard), allBodies)};
 };

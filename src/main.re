@@ -167,7 +167,7 @@ let invaderShot = invader => {
       Bullet(
         {width: 3, height: 3},
         {x: invaderPosition.x, y: invaderPosition.y + invaderSize.height / 2},
-        {x: int_of_float(Js.Math.random() -. 0.5), y: 2}
+        {x: 0, y: 2}
       )
     ];
   } else {
@@ -219,7 +219,15 @@ let draw = (game, canvas) => {
 let initialState = {
   bodies: [
     Player({width: 18, height: 8}, {x: 120, y: 300}),
-    Invader({width: 30, height: 10}, {x: 10, y: 90}, {x: 0, y: 0})
+    Invader({width: 30, height: 10}, {x: 10, y: 20}, {x: 0, y: 0}),
+    Invader({width: 30, height: 10}, {x: 45, y: 20}, {x: 0, y: 0}),
+    Invader({width: 30, height: 10}, {x: 80, y: 20}, {x: 0, y: 0}),
+    Invader({width: 30, height: 10}, {x: 115, y: 20}, {x: 0, y: 0}),
+    Invader({width: 30, height: 10}, {x: 150, y: 20}, {x: 0, y: 0}),
+    Invader({width: 30, height: 10}, {x: 185, y: 20}, {x: 0, y: 0}),
+    Invader({width: 30, height: 10}, {x: 220, y: 20}, {x: 0, y: 0}),
+    Invader({width: 30, height: 10}, {x: 255, y: 20}, {x: 0, y: 0}),
+    Invader({width: 30, height: 10}, {x: 290, y: 20}, {x: 0, y: 0})
   ]
 };
 

@@ -125,7 +125,7 @@ function invaderShot(invader) {
                   /* y */invaderPosition[/* y */1] + (invaderSize[/* height */1] / 2 | 0) | 0
                 ],
                 /* record */[
-                  /* x */Math.random() - 0.5 | 0,
+                  /* x */0,
                   /* y */2
                 ]
               ]),
@@ -203,14 +203,142 @@ var initialState = /* record */[/* bodies : :: */[
           ],
           /* record */[
             /* x */10,
-            /* y */90
+            /* y */20
           ],
           /* record */[
             /* x */0,
             /* y */0
           ]
         ]),
-      /* [] */0
+      /* :: */[
+        /* Invader */Block.__(1, [
+            /* record */[
+              /* width */30,
+              /* height */10
+            ],
+            /* record */[
+              /* x */45,
+              /* y */20
+            ],
+            /* record */[
+              /* x */0,
+              /* y */0
+            ]
+          ]),
+        /* :: */[
+          /* Invader */Block.__(1, [
+              /* record */[
+                /* width */30,
+                /* height */10
+              ],
+              /* record */[
+                /* x */80,
+                /* y */20
+              ],
+              /* record */[
+                /* x */0,
+                /* y */0
+              ]
+            ]),
+          /* :: */[
+            /* Invader */Block.__(1, [
+                /* record */[
+                  /* width */30,
+                  /* height */10
+                ],
+                /* record */[
+                  /* x */115,
+                  /* y */20
+                ],
+                /* record */[
+                  /* x */0,
+                  /* y */0
+                ]
+              ]),
+            /* :: */[
+              /* Invader */Block.__(1, [
+                  /* record */[
+                    /* width */30,
+                    /* height */10
+                  ],
+                  /* record */[
+                    /* x */150,
+                    /* y */20
+                  ],
+                  /* record */[
+                    /* x */0,
+                    /* y */0
+                  ]
+                ]),
+              /* :: */[
+                /* Invader */Block.__(1, [
+                    /* record */[
+                      /* width */30,
+                      /* height */10
+                    ],
+                    /* record */[
+                      /* x */185,
+                      /* y */20
+                    ],
+                    /* record */[
+                      /* x */0,
+                      /* y */0
+                    ]
+                  ]),
+                /* :: */[
+                  /* Invader */Block.__(1, [
+                      /* record */[
+                        /* width */30,
+                        /* height */10
+                      ],
+                      /* record */[
+                        /* x */220,
+                        /* y */20
+                      ],
+                      /* record */[
+                        /* x */0,
+                        /* y */0
+                      ]
+                    ]),
+                  /* :: */[
+                    /* Invader */Block.__(1, [
+                        /* record */[
+                          /* width */30,
+                          /* height */10
+                        ],
+                        /* record */[
+                          /* x */255,
+                          /* y */20
+                        ],
+                        /* record */[
+                          /* x */0,
+                          /* y */0
+                        ]
+                      ]),
+                    /* :: */[
+                      /* Invader */Block.__(1, [
+                          /* record */[
+                            /* width */30,
+                            /* height */10
+                          ],
+                          /* record */[
+                            /* x */290,
+                            /* y */20
+                          ],
+                          /* record */[
+                            /* x */0,
+                            /* y */0
+                          ]
+                        ]),
+                      /* [] */0
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
     ]
   ]];
 

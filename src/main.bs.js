@@ -77,9 +77,31 @@ function getPosition(body) {
   return body[1];
 }
 
+function getSize(body) {
+  return body[0];
+}
+
+function colliding(body1, body2) {
+  var size1 = getSize(body1);
+  var size2 = getSize(body2);
+  var position1 = getPosition(body1);
+  var position2 = getPosition(body2);
+  return 1 - +(body1 === body2 || (position1[/* x */0] + (size1[/* width */0] / 2 | 0) | 0) < (position2[/* x */0] - (size2[/* width */0] / 2 | 0) | 0) || (position1[/* y */1] + (size1[/* height */1] / 2 | 0) | 0) < (position2[/* y */1] - (size2[/* height */1] / 2 | 0) | 0) || (position1[/* x */0] - (size1[/* width */0] / 2 | 0) | 0) > (position2[/* x */0] + (size2[/* width */0] / 2 | 0) | 0) || (position1[/* y */1] - (size1[/* height */1] / 2 | 0) | 0) > (position2[/* y */1] + (size2[/* height */1] / 2 | 0) | 0));
+}
+
+function notCollidingWithAny(bodies, body) {
+  return +(List.length(List.filter((function (b) {
+                        return colliding(b, body);
+                      }))(bodies)) === 0);
+}
+
 function tick(game, keyboard) {
   var player = List.find(isPlayer, game[/* bodies */0]);
   var playerPosition = getPosition(player);
+  var partial_arg = game[/* bodies */0];
+  var survivingBodies = List.filter((function (param) {
+            return notCollidingWithAny(partial_arg, param);
+          }))(game[/* bodies */0]);
   var newBullets = keyboard[/* space */2] ? /* :: */[
       /* Bullet */Block.__(2, [
           /* record */[
@@ -94,7 +116,7 @@ function tick(game, keyboard) {
         ]),
       /* [] */0
     ] : /* [] */0;
-  var allBodies = List.append(game[/* bodies */0], newBullets);
+  var allBodies = List.append(survivingBodies, newBullets);
   return /* record */[/* bodies */List.map((function (param) {
                   return updateBody(keyboard, param);
                 }), allBodies)];
@@ -218,18 +240,21 @@ function gameLoop(state, keyboard, _) {
 
 gameLoop(initialState, gameKeyboard, 0);
 
-exports.canvas        = canvas;
-exports.screen        = screen;
-exports.getScreenSize = getScreenSize;
-exports.updateBody    = updateBody;
-exports.isPlayer      = isPlayer;
-exports.findPlayer    = findPlayer;
-exports.getPosition   = getPosition;
-exports.tick          = tick;
-exports.drawToScreen  = drawToScreen;
-exports.drawBody      = drawBody;
-exports.draw          = draw;
-exports.initialState  = initialState;
-exports.gameKeyboard  = gameKeyboard;
-exports.gameLoop      = gameLoop;
+exports.canvas              = canvas;
+exports.screen              = screen;
+exports.getScreenSize       = getScreenSize;
+exports.updateBody          = updateBody;
+exports.isPlayer            = isPlayer;
+exports.findPlayer          = findPlayer;
+exports.getPosition         = getPosition;
+exports.getSize             = getSize;
+exports.colliding           = colliding;
+exports.notCollidingWithAny = notCollidingWithAny;
+exports.tick                = tick;
+exports.drawToScreen        = drawToScreen;
+exports.drawBody            = drawBody;
+exports.draw                = draw;
+exports.initialState        = initialState;
+exports.gameKeyboard        = gameKeyboard;
+exports.gameLoop            = gameLoop;
 /* canvas Not a pure module */

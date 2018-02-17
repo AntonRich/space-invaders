@@ -111,16 +111,58 @@ let getPosition = body =>
   | Bullet(_, position, _) => position
   };
 
+let getSize = body =>
+  switch body {
+  | Player(size, _) => size
+  | Invader(size, _, _) => size
+  | Bullet(size, _, _) => size
+  };
+
+let colliding = (body1, body2) => {
+  let size1 = getSize(body1);
+  let size2 = getSize(body2);
+  let position1 = getPosition(body1);
+  let position2 = getPosition(body2);
+  ! (
+    body1 === body2
+    || position1.x
+    + size1.width
+    / 2 < position2.x
+    - size2.width
+    / 2
+    || position1.y
+    + size1.height
+    / 2 < position2.y
+    - size2.height
+    / 2
+    || position1.x
+    - size1.width
+    / 2 > position2.x
+    + size2.width
+    / 2
+    || position1.y
+    - size1.height
+    / 2 > position2.y
+    + size2.height
+    / 2
+  );
+};
+
+let notCollidingWithAny = (bodies, body) =>
+  List.length(List.filter(b => colliding(b, body), bodies)) == 0;
+
 let tick = (game, keyboard) => {
   let player = findPlayer(game.bodies);
   let playerPosition = getPosition(player);
+  let survivingBodies =
+    List.filter(notCollidingWithAny(game.bodies), game.bodies);
   let newBullets =
     if (keyboard.space) {
       [Bullet({width: 3, height: 3}, playerPosition, {x: 0, y: (-6)})];
     } else {
       [];
     };
-  let allBodies = List.append(game.bodies, newBullets);
+  let allBodies = List.append(survivingBodies, newBullets);
   {bodies: List.map(updateBody(keyboard), allBodies)};
 };
 

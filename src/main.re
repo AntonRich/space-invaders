@@ -40,6 +40,29 @@ type size = {
   height: int
 };
 
+type position = {
+  x: int,
+  y: int
+};
+
+type velocity = {
+  x: int,
+  y: int
+};
+
+type body =
+  | Player(size, position)
+  | Invader(size, position, velocity)
+  | Bullet(size, position, velocity);
+
+type keyboard = {
+  mutable left: bool,
+  mutable right: bool,
+  mutable space: bool
+};
+
+type gameBoard = {bodies: list(body)};
+
 let canvas = getElementById("screen");
 
 let screen = getContext2d(canvas);
@@ -49,160 +72,86 @@ let getScreenSize = context => {
   height: elementHeight(context)
 };
 
-type position = {
-  x: int,
-  y: int
-};
-
-type player = {
-  size,
-  center: position
-};
-
-type invader = {
-  size,
-  center: position,
-  patrolX: int,
-  speedX: float
-};
-
-type bullet = {
-  size,
-  center: position,
-  velocity: position
-};
-
-type body =
-  | Player(player)
-  | Invader(invader)
-  | Bullet(bullet);
-
-type keyboard = {
-  mutable left: bool,
-  mutable right: bool,
-  mutable space: bool
-};
-
-type gameBoard = {
-  player,
-  invaders: list(invader),
-  bullets: list(bullet)
-};
-
-let updatePlayer = (keyboard, {size, center}: player) => {
-  size,
-  center: {
-    x: center.x + (keyboard.left ? (-2) : 0) + (keyboard.right ? 2 : 0),
-    y: center.y
-  }
-};
-
-let updateInvaders = invaders => invaders;
-
-let updateBullet = ({size, velocity, center}: bullet) : bullet => {
-  size,
-  velocity,
-  center: {
-    x: center.x,
-    y: center.y + velocity.y
-  }
-};
-
-let updateBullets = (keyboard, bullets, origin) => {
-  let updatedBullets = List.map(updateBullet, bullets);
-  if (keyboard.space) {
-    let bullet = {
-      size: {
-        width: 3,
-        height: 3
-      },
-      velocity: {
-        x: 0,
-        y: (-6)
-      },
-      center: {
-        x: origin.x,
-        y: origin.y
+let updateBody = (keyboard, body) =>
+  switch body {
+  | Player(size, position) =>
+    Player(
+      size,
+      {
+        x: position.x + (keyboard.left ? (-2) : 0) + (keyboard.right ? 2 : 0),
+        y: position.y
       }
-    };
-    List.append([bullet], updatedBullets);
-  } else {
-    updatedBullets;
+    )
+  | Invader(size, position, velocity) =>
+    Invader(
+      size,
+      {x: position.x + velocity.x, y: position.y + velocity.y},
+      velocity
+    )
+  | Bullet(size, position, velocity) =>
+    Bullet(
+      size,
+      {x: position.x + velocity.x, y: position.y + velocity.y},
+      velocity
+    )
   };
-};
+
+let isPlayer = body =>
+  switch body {
+  | Player(_, _) => true
+  | _ => false
+  };
+
+let findPlayer = bodies => List.find(isPlayer, bodies);
+
+let getPosition = body =>
+  switch body {
+  | Player(_, position) => position
+  | Invader(_, position, _) => position
+  | Bullet(_, position, _) => position
+  };
 
 let tick = (game, keyboard) => {
-  let player = game.player;
-  {
-    player: updatePlayer(keyboard, player),
-    invaders: updateInvaders(game.invaders),
-    bullets: updateBullets(keyboard, game.bullets, player.center)
-  };
+  let player = findPlayer(game.bodies);
+  let playerPosition = getPosition(player);
+  let newBullets =
+    if (keyboard.space) {
+      [Bullet({width: 3, height: 3}, playerPosition, {x: 0, y: (-6)})];
+    } else {
+      [];
+    };
+  let allBodies = List.append(game.bodies, newBullets);
+  {bodies: List.map(updateBody(keyboard), allBodies)};
 };
+
+let drawToScreen = (screen, size, position: position) =>
+  fillRect(
+    screen,
+    position.x - size.width / 2,
+    position.y - size.height / 2,
+    size.width,
+    size.height
+  );
 
 let drawBody = (screen, body) =>
   switch body {
-  | Player({center, size}) =>
-    fillRect(
-      screen,
-      center.x - size.width / 2,
-      center.y - size.height / 2,
-      size.width,
-      size.height
-    )
-  | Invader({center, size}) =>
-    fillRect(
-      screen,
-      center.x - size.width / 2,
-      center.y - size.height / 2,
-      size.width,
-      size.height
-    )
-  | Bullet({center, size}) =>
-    fillRect(
-      screen,
-      center.x - size.width / 2,
-      center.y - size.height / 2,
-      size.width,
-      size.height
-    )
+  | Player(size, position) => drawToScreen(screen, size, position)
+  | Invader(size, position, _) => drawToScreen(screen, size, position)
+  | Bullet(size, position, _) => drawToScreen(screen, size, position)
   };
 
 let draw = (game, canvas) => {
   let screen = getContext2d(canvas);
   let screenSize = getScreenSize(canvas);
   clearRect(screen, 0, 0, screenSize.width, screenSize.height);
-  drawBody(screen, Player(game.player));
-  List.map(drawBody(screen), List.map(b => Bullet(b), game.bullets));
-  List.map(drawBody(screen), List.map(b => Invader(b), game.invaders));
+  List.map(drawBody(screen), game.bodies);
 };
 
 let initialState = {
-  player: {
-    size: {
-      width: 18,
-      height: 8
-    },
-    center: {
-      x: 120,
-      y: 300
-    }
-  },
-  invaders: [
-    {
-      size: {
-        width: 30,
-        height: 10
-      },
-      center: {
-        x: 10,
-        y: 90
-      },
-      patrolX: 3,
-      speedX: 3.
-    }
-  ],
-  bullets: []
+  bodies: [
+    Player({width: 18, height: 8}, {x: 120, y: 300}),
+    Invader({width: 30, height: 10}, {x: 10, y: 90}, {x: 0, y: 0})
+  ]
 };
 
 let gameKeyboard = {left: false, right: false, space: false};
@@ -216,7 +165,7 @@ addEventListener(
     | 37 => gameKeyboard.left = true
     | 39 => gameKeyboard.right = true
     | 32 => gameKeyboard.space = true
-    | _ => ignore()
+    | _ => ()
     };
   }
 );
@@ -230,7 +179,7 @@ addEventListener(
     | 37 => gameKeyboard.left = false
     | 39 => gameKeyboard.right = false
     | 32 => gameKeyboard.space = false
-    | _ => ignore()
+    | _ => ()
     };
   }
 );

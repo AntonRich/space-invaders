@@ -15,148 +15,138 @@ function getScreenSize(context) {
         ];
 }
 
-function updatePlayer(keyboard, param) {
-  var center = param[/* center */1];
-  var match = keyboard[/* left */0];
-  var match$1 = keyboard[/* right */1];
-  return /* record */[
-          /* size */param[/* size */0],
-          /* center : record */[
-            /* x */(center[/* x */0] + (
-                match !== 0 ? -2 : 0
-              ) | 0) + (
-              match$1 !== 0 ? 2 : 0
-            ) | 0,
-            /* y */center[/* y */1]
-          ]
-        ];
-}
-
-function updateInvaders(invaders) {
-  return invaders;
-}
-
-function updateBullet(param) {
-  var velocity = param[/* velocity */2];
-  var center = param[/* center */1];
-  return /* record */[
-          /* size */param[/* size */0],
-          /* center : record */[
-            /* x */center[/* x */0],
-            /* y */center[/* y */1] + velocity[/* y */1] | 0
-          ],
-          /* velocity */velocity
-        ];
-}
-
-function updateBullets(keyboard, bullets, origin) {
-  var updatedBullets = List.map(updateBullet, bullets);
-  if (keyboard[/* space */2]) {
-    var bullet_000 = /* size : record */[
-      /* width */3,
-      /* height */3
-    ];
-    var bullet_001 = /* center : record */[
-      /* x */origin[/* x */0],
-      /* y */origin[/* y */1]
-    ];
-    var bullet_002 = /* velocity : record */[
-      /* x */0,
-      /* y */-6
-    ];
-    var bullet = /* record */[
-      bullet_000,
-      bullet_001,
-      bullet_002
-    ];
-    return List.append(/* :: */[
-                bullet,
-                /* [] */0
-              ], updatedBullets);
-  } else {
-    return updatedBullets;
+function updateBody(keyboard, body) {
+  switch (body.tag | 0) {
+    case 0 : 
+        var position = body[1];
+        var match = keyboard[/* left */0];
+        var match$1 = keyboard[/* right */1];
+        return /* Player */Block.__(0, [
+                  body[0],
+                  /* record */[
+                    /* x */(position[/* x */0] + (
+                        match !== 0 ? -2 : 0
+                      ) | 0) + (
+                      match$1 !== 0 ? 2 : 0
+                    ) | 0,
+                    /* y */position[/* y */1]
+                  ]
+                ]);
+    case 1 : 
+        var velocity = body[2];
+        var position$1 = body[1];
+        return /* Invader */Block.__(1, [
+                  body[0],
+                  /* record */[
+                    /* x */position$1[/* x */0] + velocity[/* x */0] | 0,
+                    /* y */position$1[/* y */1] + velocity[/* y */1] | 0
+                  ],
+                  velocity
+                ]);
+    case 2 : 
+        var velocity$1 = body[2];
+        var position$2 = body[1];
+        return /* Bullet */Block.__(2, [
+                  body[0],
+                  /* record */[
+                    /* x */position$2[/* x */0] + velocity$1[/* x */0] | 0,
+                    /* y */position$2[/* y */1] + velocity$1[/* y */1] | 0
+                  ],
+                  velocity$1
+                ]);
+    
   }
+}
+
+function isPlayer(body) {
+  switch (body.tag | 0) {
+    case 0 : 
+        return /* true */1;
+    case 1 : 
+    case 2 : 
+        return /* false */0;
+    
+  }
+}
+
+function findPlayer(bodies) {
+  return List.find(isPlayer, bodies);
+}
+
+function getPosition(body) {
+  return body[1];
 }
 
 function tick(game, keyboard) {
-  var player = game[/* player */0];
-  return /* record */[
-          /* player */updatePlayer(keyboard, player),
-          /* invaders */game[/* invaders */1],
-          /* bullets */updateBullets(keyboard, game[/* bullets */2], player[/* center */1])
-        ];
+  var player = List.find(isPlayer, game[/* bodies */0]);
+  var playerPosition = getPosition(player);
+  var newBullets = keyboard[/* space */2] ? /* :: */[
+      /* Bullet */Block.__(2, [
+          /* record */[
+            /* width */3,
+            /* height */3
+          ],
+          playerPosition,
+          /* record */[
+            /* x */0,
+            /* y */-6
+          ]
+        ]),
+      /* [] */0
+    ] : /* [] */0;
+  var allBodies = List.append(game[/* bodies */0], newBullets);
+  return /* record */[/* bodies */List.map((function (param) {
+                  return updateBody(keyboard, param);
+                }), allBodies)];
+}
+
+function drawToScreen(screen, size, position) {
+  screen.fillRect(position[/* x */0] - (size[/* width */0] / 2 | 0) | 0, position[/* y */1] - (size[/* height */1] / 2 | 0) | 0, size[/* width */0], size[/* height */1]);
+  return /* () */0;
 }
 
 function drawBody(screen, body) {
-  var exit = 0;
-  switch (body.tag | 0) {
-    case 1 : 
-        var match = body[0];
-        var center = match[/* center */1];
-        var size = match[/* size */0];
-        screen.fillRect(center[/* x */0] - (size[/* width */0] / 2 | 0) | 0, center[/* y */1] - (size[/* height */1] / 2 | 0) | 0, size[/* width */0], size[/* height */1]);
-        return /* () */0;
-    case 0 : 
-    case 2 : 
-        exit = 1;
-        break;
-    
-  }
-  if (exit === 1) {
-    var match$1 = body[0];
-    var center$1 = match$1[/* center */1];
-    var size$1 = match$1[/* size */0];
-    screen.fillRect(center$1[/* x */0] - (size$1[/* width */0] / 2 | 0) | 0, center$1[/* y */1] - (size$1[/* height */1] / 2 | 0) | 0, size$1[/* width */0], size$1[/* height */1]);
-    return /* () */0;
-  }
-  
+  return drawToScreen(screen, body[0], body[1]);
 }
 
 function draw(game, canvas) {
   var screen = canvas.getContext("2d");
   var screenSize = getScreenSize(canvas);
   screen.clearRect(0, 0, screenSize[/* width */0], screenSize[/* height */1]);
-  drawBody(screen, /* Player */Block.__(0, [game[/* player */0]]));
-  List.map((function (param) {
-          return drawBody(screen, param);
-        }), List.map((function (b) {
-              return /* Bullet */Block.__(2, [b]);
-            }), game[/* bullets */2]));
   return List.map((function (param) {
                 return drawBody(screen, param);
-              }), List.map((function (b) {
-                    return /* Invader */Block.__(1, [b]);
-                  }), game[/* invaders */1]));
+              }), game[/* bodies */0]);
 }
 
-var initialState = /* record */[
-  /* player : record */[
-    /* size : record */[
-      /* width */18,
-      /* height */8
-    ],
-    /* center : record */[
-      /* x */120,
-      /* y */300
+var initialState = /* record */[/* bodies : :: */[
+    /* Player */Block.__(0, [
+        /* record */[
+          /* width */18,
+          /* height */8
+        ],
+        /* record */[
+          /* x */120,
+          /* y */300
+        ]
+      ]),
+    /* :: */[
+      /* Invader */Block.__(1, [
+          /* record */[
+            /* width */30,
+            /* height */10
+          ],
+          /* record */[
+            /* x */10,
+            /* y */90
+          ],
+          /* record */[
+            /* x */0,
+            /* y */0
+          ]
+        ]),
+      /* [] */0
     ]
-  ],
-  /* invaders : :: */[
-    /* record */[
-      /* size : record */[
-        /* width */30,
-        /* height */10
-      ],
-      /* center : record */[
-        /* x */10,
-        /* y */90
-      ],
-      /* patrolX */3,
-      /* speedX */3
-    ],
-    /* [] */0
-  ],
-  /* bullets : [] */0
-];
+  ]];
 
 var gameKeyboard = /* record */[
   /* left : false */0,
@@ -228,17 +218,18 @@ function gameLoop(state, keyboard, _) {
 
 gameLoop(initialState, gameKeyboard, 0);
 
-exports.canvas         = canvas;
-exports.screen         = screen;
-exports.getScreenSize  = getScreenSize;
-exports.updatePlayer   = updatePlayer;
-exports.updateInvaders = updateInvaders;
-exports.updateBullet   = updateBullet;
-exports.updateBullets  = updateBullets;
-exports.tick           = tick;
-exports.drawBody       = drawBody;
-exports.draw           = draw;
-exports.initialState   = initialState;
-exports.gameKeyboard   = gameKeyboard;
-exports.gameLoop       = gameLoop;
+exports.canvas        = canvas;
+exports.screen        = screen;
+exports.getScreenSize = getScreenSize;
+exports.updateBody    = updateBody;
+exports.isPlayer      = isPlayer;
+exports.findPlayer    = findPlayer;
+exports.getPosition   = getPosition;
+exports.tick          = tick;
+exports.drawToScreen  = drawToScreen;
+exports.drawBody      = drawBody;
+exports.draw          = draw;
+exports.initialState  = initialState;
+exports.gameKeyboard  = gameKeyboard;
+exports.gameLoop      = gameLoop;
 /* canvas Not a pure module */

@@ -1,18 +1,5 @@
-# Basic Reason Template
+# Space Invaders
 
-Hello! This project allows you to quickly get started with Reason and BuckleScript. If you wanted a more sophisticated version, try the `react` template (`bsb -theme react -init .`).
+This is a toy project to learn the basiscs of [ReasonMl](https://reasonml.github.io/).
 
-# Build
-```
-npm run build
-```
-
-# Build + Watch
-
-```
-npm run watch
-```
-
-
-# Editor
-If you use `vscode`, Press `Windows + Shift + B` it will build automatically
+Inspired by [this talk](https://vimeo.com/105955605), and code from that talk taken from [here](https://github.com/arvindr21/spaceinvaders-game).

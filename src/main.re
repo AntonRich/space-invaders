@@ -70,6 +70,8 @@ let canvas = getElementById("screen");
 
 let screen = getContext2d(canvas);
 
+let startButton = getElementById("start");
+
 let getScreenSize = context => {
   width: elementWidth(context),
   height: elementHeight(context)
@@ -329,4 +331,9 @@ let rec gameLoop = (state, keyboard, frameId) => {
   requestAnimationFrame(gameLoop(nextState, keyboard));
 };
 
-gameLoop(initialState, gameKeyboard, 0);
+let startGame = () => {
+  gameLoop(initialState, gameKeyboard, 0);
+  ();
+};
+
+addEventListener(startButton, "click", e => startGame());

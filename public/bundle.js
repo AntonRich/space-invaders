@@ -1437,6 +1437,8 @@ var canvas = document.getElementById("screen");
 
 var screen = canvas.getContext("2d");
 
+var startButton = document.getElementById("start");
+
 function getScreenSize(context) {
   return /* record */[
           /* width */context.width,
@@ -1922,10 +1924,18 @@ function gameLoop(state, keyboard, _) {
               }));
 }
 
-gameLoop(initialState, gameKeyboard, 0);
+function startGame() {
+  gameLoop(initialState, gameKeyboard, 0);
+  return /* () */0;
+}
+
+startButton.addEventListener("click", (function () {
+        return startGame(/* () */0);
+      }));
 
 exports.canvas                      = canvas;
 exports.screen                      = screen;
+exports.startButton                 = startButton;
 exports.getScreenSize               = getScreenSize;
 exports.isPlayer                    = isPlayer;
 exports.isInvader                   = isInvader;
@@ -1948,6 +1958,7 @@ exports.draw                        = draw;
 exports.initialState                = initialState;
 exports.gameKeyboard                = gameKeyboard;
 exports.gameLoop                    = gameLoop;
+exports.startGame                   = startGame;
 /* canvas Not a pure module */
 
 

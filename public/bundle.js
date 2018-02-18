@@ -1565,14 +1565,26 @@ function invaderShot(invader) {
   }
 }
 
+function insideGameBoard(boardSize, body) {
+  var bodyPosition = getPosition(body);
+  if (boardSize[/* width */0] >= bodyPosition[/* x */0] && bodyPosition[/* x */0] >= 0 && boardSize[/* height */1] >= bodyPosition[/* y */1]) {
+    return +(bodyPosition[/* y */1] >= 0);
+  } else {
+    return /* false */0;
+  }
+}
+
 function tick(game, keyboard) {
   var player = List.find(isPlayer, game[/* bodies */0]);
   var playerPosition = getPosition(player);
   var invaders = List.find_all(isInvader)(game[/* bodies */0]);
-  var partial_arg = game[/* bodies */0];
+  var partial_arg = game[/* size */1];
+  var partial_arg$1 = game[/* bodies */0];
   var survivingBodies = List.filter((function (param) {
-            return notCollidingWithAny(partial_arg, param);
-          }))(game[/* bodies */0]);
+            return insideGameBoard(partial_arg, param);
+          }))(List.filter((function (param) {
+                return notCollidingWithAny(partial_arg$1, param);
+              }))(game[/* bodies */0]));
   var playerBullets = keyboard[/* space */2] ? /* :: */[
       /* Bullet */Block.__(2, [
           /* record */[
@@ -1590,9 +1602,12 @@ function tick(game, keyboard) {
   var invaderBullets = List.flatten(List.map(invaderShot, invaders));
   var newBullets = List.append(playerBullets, invaderBullets);
   var allBodies = List.append(survivingBodies, newBullets);
-  return /* record */[/* bodies */List.map((function (param) {
+  return /* record */[
+          /* bodies */List.map((function (param) {
                   return updateBody(keyboard, param);
-                }), allBodies)];
+                }), allBodies),
+          /* size */game[/* size */1]
+        ];
 }
 
 function drawToScreen(screen, size, position) {
@@ -1613,15 +1628,30 @@ function draw(game, canvas) {
               }), game[/* bodies */0]);
 }
 
-var initialState = /* record */[/* bodies : :: */[
-    /* Player */Block.__(0, [
+var initialState_000 = /* bodies : :: */[
+  /* Player */Block.__(0, [
+      /* record */[
+        /* width */18,
+        /* height */8
+      ],
+      /* record */[
+        /* x */120,
+        /* y */300
+      ]
+    ]),
+  /* :: */[
+    /* Invader */Block.__(1, [
         /* record */[
-          /* width */18,
-          /* height */8
+          /* width */30,
+          /* height */10
         ],
         /* record */[
-          /* x */120,
-          /* y */300
+          /* x */10,
+          /* y */20
+        ],
+        /* record */[
+          /* x */0,
+          /* y */0
         ]
       ]),
     /* :: */[
@@ -1631,7 +1661,7 @@ var initialState = /* record */[/* bodies : :: */[
             /* height */10
           ],
           /* record */[
-            /* x */10,
+            /* x */45,
             /* y */20
           ],
           /* record */[
@@ -1646,7 +1676,7 @@ var initialState = /* record */[/* bodies : :: */[
               /* height */10
             ],
             /* record */[
-              /* x */45,
+              /* x */80,
               /* y */20
             ],
             /* record */[
@@ -1661,7 +1691,7 @@ var initialState = /* record */[/* bodies : :: */[
                 /* height */10
               ],
               /* record */[
-                /* x */80,
+                /* x */115,
                 /* y */20
               ],
               /* record */[
@@ -1676,7 +1706,7 @@ var initialState = /* record */[/* bodies : :: */[
                   /* height */10
                 ],
                 /* record */[
-                  /* x */115,
+                  /* x */150,
                   /* y */20
                 ],
                 /* record */[
@@ -1691,7 +1721,7 @@ var initialState = /* record */[/* bodies : :: */[
                     /* height */10
                   ],
                   /* record */[
-                    /* x */150,
+                    /* x */185,
                     /* y */20
                   ],
                   /* record */[
@@ -1706,7 +1736,7 @@ var initialState = /* record */[/* bodies : :: */[
                       /* height */10
                     ],
                     /* record */[
-                      /* x */185,
+                      /* x */220,
                       /* y */20
                     ],
                     /* record */[
@@ -1721,7 +1751,7 @@ var initialState = /* record */[/* bodies : :: */[
                         /* height */10
                       ],
                       /* record */[
-                        /* x */220,
+                        /* x */255,
                         /* y */20
                       ],
                       /* record */[
@@ -1736,7 +1766,7 @@ var initialState = /* record */[/* bodies : :: */[
                           /* height */10
                         ],
                         /* record */[
-                          /* x */255,
+                          /* x */290,
                           /* y */20
                         ],
                         /* record */[
@@ -1744,23 +1774,7 @@ var initialState = /* record */[/* bodies : :: */[
                           /* y */0
                         ]
                       ]),
-                    /* :: */[
-                      /* Invader */Block.__(1, [
-                          /* record */[
-                            /* width */30,
-                            /* height */10
-                          ],
-                          /* record */[
-                            /* x */290,
-                            /* y */20
-                          ],
-                          /* record */[
-                            /* x */0,
-                            /* y */0
-                          ]
-                        ]),
-                      /* [] */0
-                    ]
+                    /* [] */0
                   ]
                 ]
               ]
@@ -1769,7 +1783,15 @@ var initialState = /* record */[/* bodies : :: */[
         ]
       ]
     ]
-  ]];
+  ]
+];
+
+var initialState_001 = /* size */getScreenSize(canvas);
+
+var initialState = /* record */[
+  initialState_000,
+  initialState_001
+];
 
 var gameKeyboard = /* record */[
   /* left : false */0,
@@ -1854,6 +1876,7 @@ exports.getSize             = getSize;
 exports.colliding           = colliding;
 exports.notCollidingWithAny = notCollidingWithAny;
 exports.invaderShot         = invaderShot;
+exports.insideGameBoard     = insideGameBoard;
 exports.tick                = tick;
 exports.drawToScreen        = drawToScreen;
 exports.drawBody            = drawBody;

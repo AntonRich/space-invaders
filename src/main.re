@@ -61,7 +61,10 @@ type keyboard = {
   mutable space: bool
 };
 
-type gameBoard = {bodies: list(body)};
+type gameBoard = {
+  bodies: list(body),
+  size
+};
 
 let canvas = getElementById("screen");
 
@@ -175,12 +178,24 @@ let invaderShot = invader => {
   };
 };
 
+let insideGameBoard = (boardSize, body) => {
+  let bodyPosition = getPosition(body);
+  let isInside =
+    boardSize.width >= bodyPosition.x
+    && bodyPosition.x >= 0
+    && boardSize.height >= bodyPosition.y
+    && bodyPosition.y >= 0;
+  isInside;
+};
+
 let tick = (game, keyboard) => {
   let player = findPlayer(game.bodies);
   let playerPosition = getPosition(player);
   let invaders = findInvaders(game.bodies);
   let survivingBodies =
-    List.filter(notCollidingWithAny(game.bodies), game.bodies);
+    game.bodies
+    |> List.filter(notCollidingWithAny(game.bodies))
+    |> List.filter(insideGameBoard(game.size));
   let playerBullets =
     if (keyboard.space) {
       [Bullet({width: 3, height: 3}, playerPosition, {x: 0, y: (-6)})];
@@ -190,7 +205,7 @@ let tick = (game, keyboard) => {
   let invaderBullets = List.flatten(List.map(invaderShot, invaders));
   let newBullets = List.append(playerBullets, invaderBullets);
   let allBodies = List.append(survivingBodies, newBullets);
-  {bodies: List.map(updateBody(keyboard), allBodies)};
+  {bodies: List.map(updateBody(keyboard), allBodies), size: game.size};
 };
 
 let drawToScreen = (screen, size, position: position) =>
@@ -228,7 +243,8 @@ let initialState = {
     Invader({width: 30, height: 10}, {x: 220, y: 20}, {x: 0, y: 0}),
     Invader({width: 30, height: 10}, {x: 255, y: 20}, {x: 0, y: 0}),
     Invader({width: 30, height: 10}, {x: 290, y: 20}, {x: 0, y: 0})
-  ]
+  ],
+  size: getScreenSize(canvas)
 };
 
 let gameKeyboard = {left: false, right: false, space: false};

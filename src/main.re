@@ -75,30 +75,6 @@ let getScreenSize = context => {
   height: elementHeight(context)
 };
 
-let updateBody = (keyboard, body) =>
-  switch body {
-  | Player(size, position) =>
-    Player(
-      size,
-      {
-        x: position.x + (keyboard.left ? (-2) : 0) + (keyboard.right ? 2 : 0),
-        y: position.y
-      }
-    )
-  | Invader(size, position, velocity) =>
-    Invader(
-      size,
-      {x: position.x + velocity.x, y: position.y + velocity.y},
-      velocity
-    )
-  | Bullet(size, position, velocity) =>
-    Bullet(
-      size,
-      {x: position.x + velocity.x, y: position.y + velocity.y},
-      velocity
-    )
-  };
-
 let isPlayer = body =>
   switch body {
   | Player(_, _) => true
@@ -180,12 +156,79 @@ let invaderShot = invader => {
 
 let insideGameBoard = (boardSize, body) => {
   let bodyPosition = getPosition(body);
-  let isInside =
-    boardSize.width >= bodyPosition.x
-    && bodyPosition.x >= 0
-    && boardSize.height >= bodyPosition.y
-    && bodyPosition.y >= 0;
-  isInside;
+  let bodySize = getSize(body);
+  boardSize.width > bodyPosition.x
+  + bodySize.width
+  / 2
+  && bodyPosition.x
+  - bodySize.width
+  / 2 > 0
+  && boardSize.height > bodyPosition.y
+  + bodySize.height
+  / 2
+  && bodyPosition.y
+  - bodySize.height
+  / 2 > 0;
+};
+
+let inRightBoardEdge = (boardSize, body) => {
+  let bodyPosition = getPosition(body);
+  let bodySize = getSize(body);
+  boardSize.width == bodyPosition.x
+  + bodySize.width
+  / 2
+  || boardSize.width
+  + 1 == bodyPosition.x
+  + bodySize.width
+  / 2;
+};
+
+let inLeftBoardEdge = (boardSize, body) => {
+  let bodyPosition = getPosition(body);
+  let bodySize = getSize(body);
+  bodyPosition.x
+  - bodySize.width
+  / 2 == 0
+  || bodyPosition.x
+  - bodySize.width
+  / 2 == (-1);
+};
+
+let updateBody = (keyboard, boardSize, body) =>
+  switch body {
+  | Player(size, position) when insideGameBoard(boardSize, body) =>
+    Player(
+      size,
+      {
+        x: position.x + (keyboard.left ? (-2) : 0) + (keyboard.right ? 2 : 0),
+        y: position.y
+      }
+    )
+  | Player(size, position) when inRightBoardEdge(boardSize, body) =>
+    Player(size, {x: position.x + (keyboard.left ? (-2) : 0), y: position.y})
+  | Player(size, position) when inLeftBoardEdge(boardSize, body) =>
+    Player(size, {x: position.x + (keyboard.right ? 2 : 0), y: position.y})
+  | Player(_, _) => body
+  | Invader(size, position, velocity) =>
+    Invader(
+      size,
+      {x: position.x + velocity.x, y: position.y + velocity.y},
+      velocity
+    )
+  | Bullet(size, position, velocity) =>
+    Bullet(
+      size,
+      {x: position.x + velocity.x, y: position.y + velocity.y},
+      velocity
+    )
+  };
+
+let notBulletAndInsideGameBoard = (boardSize, body) => {
+  let bodyPosition = getPosition(body);
+  isPlayer(body)
+  || isInvader(body)
+  || boardSize.width >= bodyPosition.x
+  && insideGameBoard(boardSize, body);
 };
 
 let tick = (game, keyboard) => {
@@ -195,7 +238,7 @@ let tick = (game, keyboard) => {
   let survivingBodies =
     game.bodies
     |> List.filter(notCollidingWithAny(game.bodies))
-    |> List.filter(insideGameBoard(game.size));
+    |> List.filter(notBulletAndInsideGameBoard(game.size));
   let playerBullets =
     if (keyboard.space) {
       [Bullet({width: 3, height: 3}, playerPosition, {x: 0, y: (-6)})];
@@ -205,7 +248,10 @@ let tick = (game, keyboard) => {
   let invaderBullets = List.flatten(List.map(invaderShot, invaders));
   let newBullets = List.append(playerBullets, invaderBullets);
   let allBodies = List.append(survivingBodies, newBullets);
-  {bodies: List.map(updateBody(keyboard), allBodies), size: game.size};
+  {
+    bodies: List.map(updateBody(keyboard, game.size), allBodies),
+    size: game.size
+  };
 };
 
 let drawToScreen = (screen, size, position: position) =>

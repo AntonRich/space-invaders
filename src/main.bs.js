@@ -15,49 +15,6 @@ function getScreenSize(context) {
         ];
 }
 
-function updateBody(keyboard, body) {
-  switch (body.tag | 0) {
-    case 0 : 
-        var position = body[1];
-        var match = keyboard[/* left */0];
-        var match$1 = keyboard[/* right */1];
-        return /* Player */Block.__(0, [
-                  body[0],
-                  /* record */[
-                    /* x */(position[/* x */0] + (
-                        match !== 0 ? -2 : 0
-                      ) | 0) + (
-                      match$1 !== 0 ? 2 : 0
-                    ) | 0,
-                    /* y */position[/* y */1]
-                  ]
-                ]);
-    case 1 : 
-        var velocity = body[2];
-        var position$1 = body[1];
-        return /* Invader */Block.__(1, [
-                  body[0],
-                  /* record */[
-                    /* x */position$1[/* x */0] + velocity[/* x */0] | 0,
-                    /* y */position$1[/* y */1] + velocity[/* y */1] | 0
-                  ],
-                  velocity
-                ]);
-    case 2 : 
-        var velocity$1 = body[2];
-        var position$2 = body[1];
-        return /* Bullet */Block.__(2, [
-                  body[0],
-                  /* record */[
-                    /* x */position$2[/* x */0] + velocity$1[/* x */0] | 0,
-                    /* y */position$2[/* y */1] + velocity$1[/* y */1] | 0
-                  ],
-                  velocity$1
-                ]);
-    
-  }
-}
-
 function isPlayer(body) {
   switch (body.tag | 0) {
     case 0 : 
@@ -138,8 +95,111 @@ function invaderShot(invader) {
 
 function insideGameBoard(boardSize, body) {
   var bodyPosition = getPosition(body);
-  if (boardSize[/* width */0] >= bodyPosition[/* x */0] && bodyPosition[/* x */0] >= 0 && boardSize[/* height */1] >= bodyPosition[/* y */1]) {
-    return +(bodyPosition[/* y */1] >= 0);
+  var bodySize = getSize(body);
+  if (boardSize[/* width */0] > (bodyPosition[/* x */0] + (bodySize[/* width */0] / 2 | 0) | 0) && (bodyPosition[/* x */0] - (bodySize[/* width */0] / 2 | 0) | 0) > 0 && boardSize[/* height */1] > (bodyPosition[/* y */1] + (bodySize[/* height */1] / 2 | 0) | 0)) {
+    return +((bodyPosition[/* y */1] - (bodySize[/* height */1] / 2 | 0) | 0) > 0);
+  } else {
+    return /* false */0;
+  }
+}
+
+function inRightBoardEdge(boardSize, body) {
+  var bodyPosition = getPosition(body);
+  var bodySize = getSize(body);
+  if (boardSize[/* width */0] === (bodyPosition[/* x */0] + (bodySize[/* width */0] / 2 | 0) | 0)) {
+    return /* true */1;
+  } else {
+    return +((boardSize[/* width */0] + 1 | 0) === (bodyPosition[/* x */0] + (bodySize[/* width */0] / 2 | 0) | 0));
+  }
+}
+
+function inLeftBoardEdge(_, body) {
+  var bodyPosition = getPosition(body);
+  var bodySize = getSize(body);
+  if (bodyPosition[/* x */0] - (bodySize[/* width */0] / 2 | 0)) {
+    return +((bodyPosition[/* x */0] - (bodySize[/* width */0] / 2 | 0) | 0) === -1);
+  } else {
+    return /* true */1;
+  }
+}
+
+function updateBody(keyboard, boardSize, body) {
+  switch (body.tag | 0) {
+    case 0 : 
+        var position = body[1];
+        var size = body[0];
+        if (insideGameBoard(boardSize, body)) {
+          var match = keyboard[/* left */0];
+          var match$1 = keyboard[/* right */1];
+          return /* Player */Block.__(0, [
+                    size,
+                    /* record */[
+                      /* x */(position[/* x */0] + (
+                          match !== 0 ? -2 : 0
+                        ) | 0) + (
+                        match$1 !== 0 ? 2 : 0
+                      ) | 0,
+                      /* y */position[/* y */1]
+                    ]
+                  ]);
+        } else if (inRightBoardEdge(boardSize, body)) {
+          var match$2 = keyboard[/* left */0];
+          return /* Player */Block.__(0, [
+                    size,
+                    /* record */[
+                      /* x */position[/* x */0] + (
+                        match$2 !== 0 ? -2 : 0
+                      ) | 0,
+                      /* y */position[/* y */1]
+                    ]
+                  ]);
+        } else if (inLeftBoardEdge(boardSize, body)) {
+          var match$3 = keyboard[/* right */1];
+          return /* Player */Block.__(0, [
+                    size,
+                    /* record */[
+                      /* x */position[/* x */0] + (
+                        match$3 !== 0 ? 2 : 0
+                      ) | 0,
+                      /* y */position[/* y */1]
+                    ]
+                  ]);
+        } else {
+          return body;
+        }
+        break;
+    case 1 : 
+        var velocity = body[2];
+        var position$1 = body[1];
+        return /* Invader */Block.__(1, [
+                  body[0],
+                  /* record */[
+                    /* x */position$1[/* x */0] + velocity[/* x */0] | 0,
+                    /* y */position$1[/* y */1] + velocity[/* y */1] | 0
+                  ],
+                  velocity
+                ]);
+    case 2 : 
+        var velocity$1 = body[2];
+        var position$2 = body[1];
+        return /* Bullet */Block.__(2, [
+                  body[0],
+                  /* record */[
+                    /* x */position$2[/* x */0] + velocity$1[/* x */0] | 0,
+                    /* y */position$2[/* y */1] + velocity$1[/* y */1] | 0
+                  ],
+                  velocity$1
+                ]);
+    
+  }
+}
+
+function notBulletAndInsideGameBoard(boardSize, body) {
+  var bodyPosition = getPosition(body);
+  if (isPlayer(body) || isInvader(body)) {
+    return /* true */1;
+  } else if (boardSize[/* width */0] >= bodyPosition[/* x */0]) {
+    return insideGameBoard(boardSize, body);
   } else {
     return /* false */0;
   }
@@ -152,7 +212,7 @@ function tick(game, keyboard) {
   var partial_arg = game[/* size */1];
   var partial_arg$1 = game[/* bodies */0];
   var survivingBodies = List.filter((function (param) {
-            return insideGameBoard(partial_arg, param);
+            return notBulletAndInsideGameBoard(partial_arg, param);
           }))(List.filter((function (param) {
                 return notCollidingWithAny(partial_arg$1, param);
               }))(game[/* bodies */0]));
@@ -173,9 +233,10 @@ function tick(game, keyboard) {
   var invaderBullets = List.flatten(List.map(invaderShot, invaders));
   var newBullets = List.append(playerBullets, invaderBullets);
   var allBodies = List.append(survivingBodies, newBullets);
+  var partial_arg$2 = game[/* size */1];
   return /* record */[
           /* bodies */List.map((function (param) {
-                  return updateBody(keyboard, param);
+                  return updateBody(keyboard, partial_arg$2, param);
                 }), allBodies),
           /* size */game[/* size */1]
         ];
@@ -434,25 +495,28 @@ function gameLoop(state, keyboard, _) {
 
 gameLoop(initialState, gameKeyboard, 0);
 
-exports.canvas              = canvas;
-exports.screen              = screen;
-exports.getScreenSize       = getScreenSize;
-exports.updateBody          = updateBody;
-exports.isPlayer            = isPlayer;
-exports.isInvader           = isInvader;
-exports.findPlayer          = findPlayer;
-exports.findInvaders        = findInvaders;
-exports.getPosition         = getPosition;
-exports.getSize             = getSize;
-exports.colliding           = colliding;
-exports.notCollidingWithAny = notCollidingWithAny;
-exports.invaderShot         = invaderShot;
-exports.insideGameBoard     = insideGameBoard;
-exports.tick                = tick;
-exports.drawToScreen        = drawToScreen;
-exports.drawBody            = drawBody;
-exports.draw                = draw;
-exports.initialState        = initialState;
-exports.gameKeyboard        = gameKeyboard;
-exports.gameLoop            = gameLoop;
+exports.canvas                      = canvas;
+exports.screen                      = screen;
+exports.getScreenSize               = getScreenSize;
+exports.isPlayer                    = isPlayer;
+exports.isInvader                   = isInvader;
+exports.findPlayer                  = findPlayer;
+exports.findInvaders                = findInvaders;
+exports.getPosition                 = getPosition;
+exports.getSize                     = getSize;
+exports.colliding                   = colliding;
+exports.notCollidingWithAny         = notCollidingWithAny;
+exports.invaderShot                 = invaderShot;
+exports.insideGameBoard             = insideGameBoard;
+exports.inRightBoardEdge            = inRightBoardEdge;
+exports.inLeftBoardEdge             = inLeftBoardEdge;
+exports.updateBody                  = updateBody;
+exports.notBulletAndInsideGameBoard = notBulletAndInsideGameBoard;
+exports.tick                        = tick;
+exports.drawToScreen                = drawToScreen;
+exports.drawBody                    = drawBody;
+exports.draw                        = draw;
+exports.initialState                = initialState;
+exports.gameKeyboard                = gameKeyboard;
+exports.gameLoop                    = gameLoop;
 /* canvas Not a pure module */

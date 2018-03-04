@@ -297,15 +297,31 @@ let initialState = {
 
 let gameKeyboard = {left: false, right: false, space: false};
 
+type key =
+  | Left
+  | Right
+  | Space
+  | UnusedKey;
+
+let keyFromEvent = e => {
+  let keyCode = getKeyCode(e);
+  switch keyCode {
+  | 37 => Left
+  | 39 => Right
+  | 32 => Space
+  | _ => UnusedKey
+  };
+};
+
 addEventListener(
   document,
   "keydown",
   e => {
-    let keyCode = getKeyCode(e);
-    switch keyCode {
-    | 37 => gameKeyboard.left = true
-    | 39 => gameKeyboard.right = true
-    | 32 => gameKeyboard.space = true
+    let key = keyFromEvent(e);
+    switch key {
+    | Left => gameKeyboard.left = true
+    | Right => gameKeyboard.right = true
+    | Space => gameKeyboard.space = true
     | _ => ()
     };
   }
@@ -315,11 +331,11 @@ addEventListener(
   document,
   "keyup",
   e => {
-    let keyCode = getKeyCode(e);
-    switch keyCode {
-    | 37 => gameKeyboard.left = false
-    | 39 => gameKeyboard.right = false
-    | 32 => gameKeyboard.space = false
+    let key = keyFromEvent(e);
+    switch key {
+    | Left => gameKeyboard.left = false
+    | Right => gameKeyboard.right = false
+    | Space => gameKeyboard.space = false
     | _ => ()
     };
   }

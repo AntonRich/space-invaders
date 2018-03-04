@@ -433,57 +433,63 @@ var gameKeyboard = /* record */[
   /* space : false */0
 ];
 
+function keyFromEvent(e) {
+  var keyCode = e.keyCode;
+  var switcher = keyCode - 32 | 0;
+  if (switcher > 7 || switcher < 0) {
+    return /* UnusedKey */3;
+  } else {
+    switch (switcher) {
+      case 0 : 
+          return /* Space */2;
+      case 5 : 
+          return /* Left */0;
+      case 1 : 
+      case 2 : 
+      case 3 : 
+      case 4 : 
+      case 6 : 
+          return /* UnusedKey */3;
+      case 7 : 
+          return /* Right */1;
+      
+    }
+  }
+}
+
 document.addEventListener("keydown", (function (e) {
-        var keyCode = e.keyCode;
-        var switcher = keyCode - 32 | 0;
-        if (switcher > 7 || switcher < 0) {
-          return /* () */0;
-        } else {
-          switch (switcher) {
-            case 0 : 
-                gameKeyboard[/* space */2] = /* true */1;
-                return /* () */0;
-            case 5 : 
-                gameKeyboard[/* left */0] = /* true */1;
-                return /* () */0;
-            case 1 : 
-            case 2 : 
-            case 3 : 
-            case 4 : 
-            case 6 : 
-                return /* () */0;
-            case 7 : 
-                gameKeyboard[/* right */1] = /* true */1;
-                return /* () */0;
-            
-          }
+        var key = keyFromEvent(e);
+        switch (key) {
+          case 0 : 
+              gameKeyboard[/* left */0] = /* true */1;
+              return /* () */0;
+          case 1 : 
+              gameKeyboard[/* right */1] = /* true */1;
+              return /* () */0;
+          case 2 : 
+              gameKeyboard[/* space */2] = /* true */1;
+              return /* () */0;
+          case 3 : 
+              return /* () */0;
+          
         }
       }));
 
 document.addEventListener("keyup", (function (e) {
-        var keyCode = e.keyCode;
-        var switcher = keyCode - 32 | 0;
-        if (switcher > 7 || switcher < 0) {
-          return /* () */0;
-        } else {
-          switch (switcher) {
-            case 0 : 
-                gameKeyboard[/* space */2] = /* false */0;
-                return /* () */0;
-            case 5 : 
-                gameKeyboard[/* left */0] = /* false */0;
-                return /* () */0;
-            case 1 : 
-            case 2 : 
-            case 3 : 
-            case 4 : 
-            case 6 : 
-                return /* () */0;
-            case 7 : 
-                gameKeyboard[/* right */1] = /* false */0;
-                return /* () */0;
-            
-          }
+        var key = keyFromEvent(e);
+        switch (key) {
+          case 0 : 
+              gameKeyboard[/* left */0] = /* false */0;
+              return /* () */0;
+          case 1 : 
+              gameKeyboard[/* right */1] = /* false */0;
+              return /* () */0;
+          case 2 : 
+              gameKeyboard[/* space */2] = /* false */0;
+              return /* () */0;
+          case 3 : 
+              return /* () */0;
+          
         }
       }));
 
@@ -528,6 +534,7 @@ exports.drawBody                    = drawBody;
 exports.draw                        = draw;
 exports.initialState                = initialState;
 exports.gameKeyboard                = gameKeyboard;
+exports.keyFromEvent                = keyFromEvent;
 exports.gameLoop                    = gameLoop;
 exports.startGame                   = startGame;
 /* canvas Not a pure module */

@@ -66,12 +66,6 @@ type gameBoard = {
   size
 };
 
-let canvas = getElementById("screen");
-
-let screen = getContext2d(canvas);
-
-let startButton = getElementById("start");
-
 let getScreenSize = context => {
   width: elementWidth(context),
   height: elementHeight(context)
@@ -279,20 +273,68 @@ let draw = (game, canvas) => {
   List.map(drawBody(screen), game.bodies);
 };
 
-let initialState = {
-  bodies: [
-    Player({width: 18, height: 8}, {x: 120, y: 300}),
-    Invader({width: 30, height: 10}, {x: 10, y: 20}, {x: 0, y: 0}),
-    Invader({width: 30, height: 10}, {x: 45, y: 20}, {x: 0, y: 0}),
-    Invader({width: 30, height: 10}, {x: 80, y: 20}, {x: 0, y: 0}),
-    Invader({width: 30, height: 10}, {x: 115, y: 20}, {x: 0, y: 0}),
-    Invader({width: 30, height: 10}, {x: 150, y: 20}, {x: 0, y: 0}),
-    Invader({width: 30, height: 10}, {x: 185, y: 20}, {x: 0, y: 0}),
-    Invader({width: 30, height: 10}, {x: 220, y: 20}, {x: 0, y: 0}),
-    Invader({width: 30, height: 10}, {x: 255, y: 20}, {x: 0, y: 0}),
-    Invader({width: 30, height: 10}, {x: 290, y: 20}, {x: 0, y: 0})
-  ],
-  size: getScreenSize(canvas)
+let makeGameBoard = canvas => {
+  let {width, height} = getScreenSize(canvas);
+  let playerSize = {width: 18, height: 8};
+  let playerPosition: position = {x: width / 2, y: height - 10};
+  let invaderSize = {width: width / 10, height: height / 30};
+  let invaderSpeed = {x: 0, y: 0};
+  let invaderXOffset = invaderSize.width / 2 + invaderSize.width / 10;
+  let invaderXSeparation = invaderSize.width + invaderSize.width / 10;
+  {
+    bodies: [
+      Player(playerSize, playerPosition),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 0, y: 10},
+        invaderSpeed
+      ),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 1, y: 10},
+        invaderSpeed
+      ),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 2, y: 10},
+        invaderSpeed
+      ),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 3, y: 10},
+        invaderSpeed
+      ),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 4, y: 10},
+        invaderSpeed
+      ),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 5, y: 10},
+        invaderSpeed
+      ),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 6, y: 10},
+        invaderSpeed
+      ),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 7, y: 10},
+        invaderSpeed
+      ),
+      Invader(
+        invaderSize,
+        {x: invaderXOffset + invaderXSeparation * 8, y: 10},
+        invaderSpeed
+      )
+    ],
+    size: {
+      width,
+      height
+    }
+  };
 };
 
 let gameKeyboard = {left: false, right: false, space: false};
@@ -341,14 +383,22 @@ addEventListener(
   }
 );
 
-let rec gameLoop = (state, keyboard, frameId) => {
+let rec gameLoop = (state, keyboard, canvas, frameId) => {
   let nextState = tick(state, keyboard);
   draw(nextState, canvas);
-  requestAnimationFrame(gameLoop(nextState, keyboard));
+  requestAnimationFrame(gameLoop(nextState, keyboard, canvas));
 };
 
+let canvas = getElementById("screen");
+
+let screen = getContext2d(canvas);
+
+let startButton = getElementById("start");
+
+let initialBoard = makeGameBoard(canvas);
+
 let startGame = () => {
-  gameLoop(initialState, gameKeyboard, 0);
+  gameLoop(initialBoard, gameKeyboard, canvas, 0);
   ();
 };
 
